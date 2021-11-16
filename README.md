@@ -17,7 +17,7 @@ Alice and Bob are two subcontractors for the same company. They both have a 4gb 
   - You may attack theory or implementation
 - in class presentation: short description + demo + attack (if applicable)
 
-##Deadlines (11:59 pm day of)
+## Deadlines (11:59 pm day of)
 - Code and spec final commit: Tuesday, Dec 1, 2021
 - Attack/endorsements: Monday, Dec 6, 2021
 - Presentation: In-class: Tuesday, Dec 7, 2021
