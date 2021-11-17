@@ -30,14 +30,14 @@ def encrypt(key, message, associated_data):
     return (iv, ciphertext, encryptor.tag)
 
 def decrypt(key, associated_data, iv, ciphertext, tag):
-    decryptor = Cipher(
-        algorithms.AES(key),
-        modes.GCM(iv, tag),
-    ).decryptor()
+    decryptor = Cipher(algorithms.AES(key),modes.GCM(iv, tag),).decryptor()
     decryptor.authenticate_additional_data(associated_data)
     return decryptor.update(ciphertext) + decryptor.finalize()
 
-iv, ciphertext, tag = encrypt(bob_hkdf,bob_text,b"lol")
+digest = hashes.Hash(hashes.SHA256())
+digest.update(bob_text)
+
+iv, ciphertext, tag = encrypt(bob_hkdf,digest.finalize(),b"lol")
 
 print(decrypt(bob_hkdf, b"lol", iv, ciphertext,tag))
 
