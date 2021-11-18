@@ -8,10 +8,11 @@ from encrypt_decrypt import encrypt, decrypt
 from cryptography.hazmat.primitives import serialization
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
-PORT = 65432        # The port used by the server
+PORT = 65433        # The port used by the server
 alice_priv = ec.generate_private_key(ec.SECP384R1(), default_backend())
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )
     s.connect((HOST, PORT)) #Connect to the socket
 
     #serialize key
@@ -22,8 +23,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     #deserialize key
     loaded_public_key = serialization.load_pem_public_key(bob_public, default_backend())
-
-    print(loaded_public_key)
 
     alice_shared = alice_priv.exchange(ec.ECDH(), loaded_public_key)
     alice_hkdf = HKDF(algorithm=hashes.SHA256(),length=32,salt=None,info=b'',).derive(alice_shared)
