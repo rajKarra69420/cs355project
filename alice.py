@@ -1,13 +1,14 @@
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.backends import default_backend
 import time, socket, pickle, os
 
 from encrypt_decrypt import encrypt, decrypt
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 65432        # The port used by the server
-alice_priv = ec.generate_private_key(ec.SECP384R1())
+alice_priv = ec.generate_private_key(ec.SECP384R1(), default_backend())
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT)) #Connect to the socket
