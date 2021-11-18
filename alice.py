@@ -1,7 +1,6 @@
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-from cryptography.hazmat.backends import default_backend
 import time, socket, pickle, os
 
 from encrypt_decrypt import encrypt, decrypt
@@ -9,7 +8,7 @@ from cryptography.hazmat.primitives import serialization
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 65433        # The port used by the server
-alice_priv = ec.generate_private_key(ec.SECP384R1(), default_backend())
+alice_priv = ec.generate_private_key(ec.SECP384R1())
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )
@@ -22,7 +21,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     bob_public = s.recv(1024)
 
     #deserialize key
-    loaded_public_key = serialization.load_pem_public_key(bob_public, default_backend())
+    loaded_public_key = serialization.load_pem_public_key(bob_public)
 
     alice_shared = alice_priv.exchange(ec.ECDH(), loaded_public_key)
     alice_hkdf = HKDF(algorithm=hashes.SHA256(),length=32,salt=None,info=b'',).derive(alice_shared)

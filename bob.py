@@ -5,15 +5,14 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 import time, pickle, os
 
 from encrypt_decrypt import encrypt, decrypt
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 
 HOST = '127.0.0.1'
 PORT = 65433
 BOB_MESSAGE = b""
-digest = hashes.Hash(hashes.SHA256(), default_backend())
+digest = hashes.Hash(hashes.SHA256())
 digest.update(BOB_MESSAGE)
-bob_priv = ec.generate_private_key(ec.SECP384R1(), default_backend())
+bob_priv = ec.generate_private_key(ec.SECP384R1())
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )
@@ -24,7 +23,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print ('Connected by', addr)
         while True:
             alice_public = conn.recv(102400) #Receive alice's public key
-            loaded_public_key = serialization.load_pem_public_key(alice_public, default_backend())
+            loaded_public_key = serialization.load_pem_public_key(alice_public)
             if not alice_public:
                 break
             print("Received alice's public key! Sending bob's public key over")
