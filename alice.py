@@ -1,7 +1,7 @@
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-import time, socket, pickle, os
+import time, socket, pickle, os, sys
 
 from encrypt_decrypt import encrypt, decrypt
 from cryptography.hazmat.primitives import serialization
