@@ -10,6 +10,11 @@ HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 65433        # The port used by the server
 alice_priv = ec.generate_private_key(ec.SECP384R1())
 
+#read in file contents
+#filename is input arg on command line
+filename = sys.argv[1]
+fileContents = open(filename, 'rb')
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )
     s.connect((HOST, PORT)) #Connect to the socket
@@ -28,6 +33,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     #Now we can encrypt alice's message and send it over
     print("Sleeping for a bit!")
     time.sleep(5)
+    #update digest with file contents
+    digest.update(fileContents.read())
     iv, ciphertext, tag = encrypt(alice_hkdf,digest.finalize(),b"lol")
     conn.send(pickle.dumps((iv,ciphertext,tag)))
     (iv, ciphertext, tag) = pickle.loads(conn.recv(102400))
