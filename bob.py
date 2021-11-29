@@ -1,4 +1,3 @@
-import os
 import socket
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -12,11 +11,12 @@ HOST = '127.0.0.1'
 PORT = 65433
 BOB_MESSAGE = b""
 digest = hashes.Hash(hashes.SHA256())
-digest.update(BOB_MESSAGE)
+#digest.update(BOB_MESSAGE)
 bob_priv = ec.generate_private_key(ec.SECP384R1())
 #get file contents
 filename = sys.argv[1]
 fileContents = open(filename, 'rb')
+digest.update(fileContents.read())
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )
@@ -36,10 +36,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             bob_hkdf = HKDF(algorithm=hashes.SHA256(),length=32,salt=None,info=b'',).derive(bob_shared)
             #Now we can encrypt bob's message and send it over
             time.sleep(5)
-            #update digest with message contents
-            digest.update(fileContents.read())
             iv, ciphertext, tag = encrypt(bob_hkdf,digest.finalize(),b"lol")
+            myCiphertext = ciphertext
             conn.send(pickle.dumps((iv,ciphertext,tag)))
             (iv, ciphertext, tag) = pickle.loads(conn.recv(102400))
             print("Decrypting the received data")
             print(decrypt(bob_hkdf, b"lol", iv, ciphertext,tag))
+            if ciphertext == myCiphertext:
+                print("Success!")
+            else:
+                print("Failed!")
