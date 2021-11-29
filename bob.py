@@ -40,6 +40,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             myCiphertext = ciphertext
             conn.send(pickle.dumps((iv,ciphertext,tag)))
             (iv, ciphertext, tag) = pickle.loads(conn.recv(102400))
+            conn.close()
             print("Decrypting the received data")
             print(decrypt(bob_hkdf, b"lol", iv, ciphertext,tag))
             if ciphertext == myCiphertext:

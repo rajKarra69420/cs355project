@@ -15,7 +15,8 @@ digest = hashes.Hash(hashes.SHA256())
 #filename is input arg on command line
 filename = sys.argv[1]
 fileContents = open(filename, 'rb')
-digest.update(fileContents.read())
+fileStuff = fileContents.read()
+digest.update(fileStuff)
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )
@@ -40,12 +41,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.sendall(pickle.dumps((iv,ciphertext,tag)))
     (iv, ciphertext, tag) = pickle.loads(s.recv(102400))
     print("Decrypting the received data")
-    print(decrypt(alice_hkdf, b"lol", iv, ciphertext,tag))
-    if ciphertext == myCiphertext:
+    results = decrypt(alice_hkdf, b"lol", iv, ciphertext,tag)
+    print(results)
+    if results == fileStuff:
         print("Success!")
     else:
         print("Failed!")
-        print(myCiphertext)
-        print(ciphertext)
+        print(results)
+        print(fileStuff)
 
 
