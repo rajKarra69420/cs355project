@@ -17,6 +17,7 @@ filename = sys.argv[1]
 fileContents = open(filename, 'rb')
 fileStuff = fileContents.read()
 digest.update(fileStuff)
+fileHash = digest.finalize()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )
@@ -24,6 +25,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     #serialize key
     serialKey = alice_priv.public_key().public_bytes(encoding=serialization.Encoding.PEM,format=serialization.PublicFormat.SubjectPublicKeyInfo)
+    print(serialKey)
     s.sendall(serialKey) #Send over alice's public key
     print("Set alice's public key! Receiving bob's public key now")
     bob_public = s.recv(1024)
@@ -36,14 +38,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     #Now we can encrypt alice's message and send it over
     print("Sleeping for a bit!")
     time.sleep(5)
-    iv, ciphertext, tag = encrypt(alice_hkdf,digest.finalize(),b"lol")
+    iv, ciphertext, tag = encrypt(alice_hkdf,fileHash,b"lol")
     myCiphertext = ciphertext
     s.sendall(pickle.dumps((iv,ciphertext,tag)))
     (iv, ciphertext, tag) = pickle.loads(s.recv(102400))
     print("Decrypting the received data")
     results = decrypt(alice_hkdf, b"lol", iv, ciphertext,tag)
     print(results)
-    if results == fileStuff:
+    if results == fileHash:
         print("Success!")
     else:
         print("Failed!")

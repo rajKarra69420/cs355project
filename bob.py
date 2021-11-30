@@ -17,6 +17,7 @@ bob_priv = ec.generate_private_key(ec.SECP384R1())
 filename = sys.argv[1]
 fileContents = open(filename, 'rb')
 digest.update(fileContents.read())
+fileHash = digest.finalize()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )
@@ -27,6 +28,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print ('Connected by', addr)
         while True:
             alice_public = conn.recv(102400) #Receive alice's public key
+            print(alice_public)
             loaded_public_key = serialization.load_pem_public_key(alice_public)
             if not alice_public:
                 break
@@ -34,16 +36,20 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             conn.sendall(bob_priv.public_key().public_bytes(encoding=serialization.Encoding.PEM,format=serialization.PublicFormat.SubjectPublicKeyInfo)) #Send over bob's public key
             bob_shared = bob_priv.exchange(ec.ECDH(), loaded_public_key)
             bob_hkdf = HKDF(algorithm=hashes.SHA256(),length=32,salt=None,info=b'',).derive(bob_shared)
+            print(bob_hkdf)
             #Now we can encrypt bob's message and send it over
             time.sleep(5)
-            iv, ciphertext, tag = encrypt(bob_hkdf,digest.finalize(),b"lol")
+            iv, ciphertext, tag = encrypt(bob_hkdf,fileHash,b"lol")
             myCiphertext = ciphertext
+            print("ctext", myCiphertext)
             conn.send(pickle.dumps((iv,ciphertext,tag)))
             (iv, ciphertext, tag) = pickle.loads(conn.recv(102400))
             conn.close()
             print("Decrypting the received data")
-            print(decrypt(bob_hkdf, b"lol", iv, ciphertext,tag))
-            if ciphertext == myCiphertext:
+            pText = decrypt(bob_hkdf, b"lol", iv, ciphertext,tag)
+            print(pText)
+            print(fileHash)
+            if pText == fileHash:
                 print("Success!")
             else:
                 print("Failed!")
