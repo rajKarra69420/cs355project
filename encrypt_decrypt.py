@@ -8,7 +8,7 @@ def encrypt(key, message, associated_data):
     encryptor = Cipher(algorithms.AES(key), modes.GCM(iv),).encryptor()
     encryptor.authenticate_additional_data(associated_data)
     ciphertext = encryptor.update(message) + encryptor.finalize()
-    return (iv, ciphertext, encryptor.tag)
+    return (iv, ciphertext, encryptor.tag, associated_data)
 
 def decrypt(key, associated_data, iv, ciphertext, tag):
     try:

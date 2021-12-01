@@ -32,15 +32,21 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         conn.sendall(bob_priv.public_key().public_bytes(encoding=serialization.Encoding.PEM,format=serialization.PublicFormat.SubjectPublicKeyInfo)) #Send over bob's public key
         bob_shared = bob_priv.exchange(ec.ECDH(), loaded_public_key)
         bob_hkdf = HKDF(algorithm=hashes.SHA256(),length=32,salt=None,info=b'',).derive(bob_shared)
-        #Now we can encrypt bob's message and send it over
-        # time.sleep(5)
-        iv, ciphertext, tag = encrypt(bob_hkdf,fileHash,b"lol")
+        iv, ciphertext, tag, associated_data = encrypt(bob_hkdf,fileHash,b"Bob's Hash")
         myCiphertext = ciphertext
-        conn.send(pickle.dumps((iv,ciphertext,tag)))
-        (iv, ciphertext, tag) = pickle.loads(conn.recv(102400))
-        conn.close()
-        pText = decrypt(bob_hkdf, b"lol", iv, ciphertext,tag)
+        conn.send(pickle.dumps((iv,ciphertext,tag, associated_data)))
+        (iv, ciphertext, tag, associated_data) = pickle.loads(conn.recv(102400))
+        pText = decrypt(bob_hkdf, associated_data, iv, ciphertext,tag)
+        isSame = b""
         if pText == fileHash:
-            print("Success!")
+            isSame = b"Success!"
         else:
-            print("Failed!")
+            isSame = b"Failed!"
+        
+        iv, ciphertext, tag, associated_data = encrypt(bob_hkdf, isSame ,b"Bob's Result")
+        conn.sendall(pickle.dumps((iv, ciphertext, tag, associated_data)))
+        print("Our result: ", isSame.decode('utf-8'))
+        (iv, ciphertext, tag, associated_data) = pickle.loads(conn.recv(102400))
+        alice_result = decrypt(bob_hkdf, associated_data, iv, ciphertext, tag)
+        print("Alice result:", alice_result.decode('utf-8'))
+

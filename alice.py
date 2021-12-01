@@ -33,12 +33,21 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     alice_hkdf = HKDF(algorithm=hashes.SHA256(),length=32,salt=None,info=b'',).derive(alice_shared)
     #Now we can encrypt alice's message and send it over
     # time.sleep(5)
-    iv, ciphertext, tag = encrypt(alice_hkdf,fileHash,b"lol")
+    iv, ciphertext, tag, associated_data = encrypt(alice_hkdf,fileHash,b"Alice's Hash")
     myCiphertext = ciphertext
-    s.sendall(pickle.dumps((iv,ciphertext,tag)))
-    (iv, ciphertext, tag) = pickle.loads(s.recv(102400))
-    results = decrypt(alice_hkdf, b"lol", iv, ciphertext,tag)
+    s.sendall(pickle.dumps((iv,ciphertext,tag, associated_data)))
+    (iv, ciphertext, tag, associated_data) = pickle.loads(s.recv(102400))
+    results = decrypt(alice_hkdf, associated_data, iv, ciphertext,tag)
+    isSame = b""
     if results == fileHash:
-        print("Success!")
+        isSame = b"Success!"
     else:
-        print("Failed!")
+        isSame = b"Failed!"
+
+    iv, ciphertext, tag, associated_data = encrypt(alice_hkdf, isSame ,b"Alice's Result")
+    s.sendall(pickle.dumps((iv, ciphertext, tag, associated_data)))
+    print("Our result: ", isSame.decode('utf-8'))
+    (iv, ciphertext, tag, associated_data) = pickle.loads(s.recv(102400))
+    bob_result = decrypt(alice_hkdf, associated_data, iv, ciphertext, tag)
+    print("Bob result:", bob_result.decode('utf-8'))
+    
