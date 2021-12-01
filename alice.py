@@ -42,7 +42,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print("Success!")
     else:
         print("Failed!")
-        print(results)
-        print(fileStuff)
-
-
