@@ -1,0 +1,19 @@
+## Communication
+
+- Bob will create a BSD socket to listen for communcation from Alice
+- Alice will create her own BSD socket and connect to Bob 
+
+## Protocol
+1. Alice and Bob will perform an ECDH key exchange to arrive at a shared secret
+2. Using the shared secret above, Alice and Bob will input their shared secret into a HKDF fucntion using the sha 256 hash function. This will serve as a key to be used for the AES GCM cipher
+3. Alice and Bob will both hash their file using the sha 256 hash function and store the hash
+4. Bob will follow the specifications for AES GCM to encrypt his file hash and send the IV, ciphertext, tag, and associated data (this is used to let the other party know who's hash is who's and is supposed to be sent unencrypted) to Alice 
+5. Alice will follow the specifications for AES GCM to encrypt her file hash and send the IV, ciphertext, tag, and associated data (this is used to let the other party know who's hash is who's and is supposed to be sent unencrypted) to Bob
+6. Bob will then follow the specification for AES GCM to decrypt the file hash with the data he received 
+7. Alice will then follow the specification for AES GCM to decrypt the file hash with the data she received
+8. Bob will output Success if the hash he receives is the same as his hash and Failure otherwise. 
+9. Alice will output Success if the hash she receives is the same as her hash and Failure otherwise. 
+10. Bob will follow the specifications for AES GCM to encrypt his result from step 8 and send the IV, ciphertext, tag, and associated data (this is used to let the other party know who's result is who's and is supposed to be sent unencrypted) to Alice 
+11. Alice will follow the specifications for AES GCM to encrypt her result from step 9 and send the IV, ciphertext, tag, and associated data (this is used to let the other party know who's result is who's and is supposed to be sent unencrypted) to Bob
+12. Bob will then follow the specification for AES GCM to decrypt the result from step 9 with the data he received, and print out Alice's result
+13. Alice will then follow the specification for AES GCM to decrypt the result from step 8 with the data she received, and print out Bob's result
