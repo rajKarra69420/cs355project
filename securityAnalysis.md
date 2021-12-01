@@ -2,7 +2,7 @@
 
 ## Security Goals
 The security goals for this protocol are as follows:
-- Prove Alice and Bob share the same file of passwords without either learning about what the other has in their file.
+- Alice and Bob can learn whether their files are identical without either Alice, Bob, nor the Adversary learning any additional information about the files,
 - No adversary can learn anything from communications between Alice and Bob
 - Alice and Bob can prove that communication they recieve came from the other
 - Alice and Bob can detect if the communication they recieve has been tampered with
@@ -21,16 +21,6 @@ Our assumptions are as follows:
 - We assuem that the sha 256 hash function is a random oracle (for the hkdf)
 - We assume that the GCM mode of AES is IND-CCA2 secure 
 - We assume that Alice and Bob have already exchanged public keys and they can identify each others public key 
-
-## Protocol 
-
-- Alice and Bob will perform an ECDH key exchange to arrive at a shared secret
-- Using the shared secret above, Alice and Bob will input their shared secret into a HKDF fucntion using the sha 256 hash function. This will serve as a key to be used for the AES GCM cipher
-- Alice and Bob will both hash their file and store the hash
-- Alice will encrypt her file hash and send it to Bob
-- Bob will encrypt his file hash and send it to Alice
-- Alice will output Success if the hash she receives is the same as her hash and Failure otherwise
-- Bob will output Success if the hash he receives is the same as his hash and Failure otherwise
 
 ## How the Security Goals are Achieved
 We use AES-GCM to encrypt and sign messages between Alice and Bob.
