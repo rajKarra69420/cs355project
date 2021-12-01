@@ -11,9 +11,7 @@ HOST = '127.0.0.1'
 PORT = 65433
 BOB_MESSAGE = b""
 digest = hashes.Hash(hashes.SHA256())
-#digest.update(BOB_MESSAGE)
 bob_priv = ec.generate_private_key(ec.SECP384R1())
-#get file contents
 filename = sys.argv[1]
 fileContents = open(filename, 'rb')
 digest.update(fileContents.read())
@@ -25,7 +23,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.listen()
     conn, addr = s.accept()
     with conn:
-        alice_public = conn.recv(102400) #Receive alice's public key
+        alice_public = conn.recv(102400)
         loaded_public_key = serialization.load_pem_public_key(alice_public)
         if not alice_public:
             exit()
