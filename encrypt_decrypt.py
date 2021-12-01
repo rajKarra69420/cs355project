@@ -11,6 +11,9 @@ def encrypt(key, message, associated_data):
     return (iv, ciphertext, encryptor.tag)
 
 def decrypt(key, associated_data, iv, ciphertext, tag):
-    decryptor = Cipher(algorithms.AES(key),modes.GCM(iv, tag),).decryptor()
-    decryptor.authenticate_additional_data(associated_data)
-    return decryptor.update(ciphertext) + decryptor.finalize()
+    try:
+        decryptor = Cipher(algorithms.AES(key),modes.GCM(iv, tag),).decryptor()
+        decryptor.authenticate_additional_data(associated_data)
+        return decryptor.update(ciphertext) + decryptor.finalize()
+    except:
+        return None
