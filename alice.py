@@ -11,8 +11,6 @@ PORT = 65433        # The port used by the server
 alice_priv = ec.generate_private_key(ec.SECP384R1())
 
 digest = hashes.Hash(hashes.SHA256())
-#read in file contents
-#filename is input arg on command line
 filename = sys.argv[1]
 fileContents = open(filename, 'rb')
 fileStuff = fileContents.read()
@@ -21,18 +19,15 @@ fileHash = digest.finalize()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )
-    s.connect((HOST, PORT)) #Connect to the socket
+    s.connect((HOST, PORT))
 
-    #serialize key
     serialKey = alice_priv.public_key().public_bytes(encoding=serialization.Encoding.PEM,format=serialization.PublicFormat.SubjectPublicKeyInfo)
-    s.sendall(serialKey) #Send over alice's public key
+    s.sendall(serialKey)
     bob_public = s.recv(1024)
-    #deserialize key
     loaded_public_key = serialization.load_pem_public_key(bob_public)
     alice_shared = alice_priv.exchange(ec.ECDH(), loaded_public_key)
     alice_hkdf = HKDF(algorithm=hashes.SHA256(),length=32,salt=None,info=b'',).derive(alice_shared)
-    #Now we can encrypt alice's message and send it over
-    # time.sleep(5)
+    
     iv, ciphertext, tag, associated_data = encrypt(alice_hkdf,fileHash,b"Alice's Hash")
     myCiphertext = ciphertext
     s.sendall(pickle.dumps((iv,ciphertext,tag, associated_data)))
