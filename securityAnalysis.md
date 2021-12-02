@@ -9,7 +9,7 @@ The security goals for this protocol are as follows:
 
 ## Threat Model 
 
-For Alice and Bob, we use a honest-but-curious threat model. This means that Alice and Bob will follow the protocol honestly but they will try to learn extra information. For example, Alice and Bob can analyze, store, and perform any opoerations on the messages they receive. However, Alice and Bob are unable to perform active attacks (e.g if the protocol says hash the file, they are unable to lie about the hash of their file). 
+For Alice and Bob, we use a honest-but-curious threat model. This means that Alice and Bob will follow the protocol honestly but they will try to learn extra information. For example, Alice and Bob can analyze, store, and perform any operations on the messages they receive. However, Alice and Bob are unable to perform active attacks (e.g if the protocol says hash the file, they are unable to lie about the hash of their file). 
 
 For any adversary, we consider a dynamic adversary. This means that an adversary is able manipulate messages, perform mitm attacks, and attempt to subvert the protocol however they desire. 
 
