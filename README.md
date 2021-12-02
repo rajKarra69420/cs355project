@@ -19,3 +19,12 @@ Alice and Bob are two subcontractors for the same company. They both have a 4gb 
 - Code and spec final commit: Tuesday, Dec 1, 2021
 - Attack/endorsements: Monday, Dec 6, 2021
 - Presentation: In-class: Tuesday, Dec 7, 2021
+
+## How to run our code
+
+To ensure consistency, our code should be ran in a virtual enviornment. Here are the steps to do so: 
+
+- Follow the steps in [here](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) to create a virtual enviornment
+- Run ```pip3 install -r requirements.txt``` to install the dependencies
+- Run ```python3 bob.py [PASSWORD_FILE]```
+- Run ```python3 alice.py [PASSWORD_FILE]```
